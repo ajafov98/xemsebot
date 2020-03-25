@@ -1,5 +1,6 @@
 package com.aydinnajafov.xemsebot.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,7 +14,7 @@ public class User {
     private String lastName;
     private long userId;
     private long chatId;
-    private String score;
+    private int score;
     private boolean isReferee;
 
 

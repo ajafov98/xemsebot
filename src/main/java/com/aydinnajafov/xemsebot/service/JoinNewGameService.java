@@ -26,8 +26,9 @@ public class JoinNewGameService {
     @Autowired
     GroupChatRepository groupChatRepository;
 
+    //Joining to new game
     public EditMessageText join(Update update, GroupChat groupChat) {
-
+        //Get user information from the update
         User user = User.builder()
                 .userId(update.getCallbackQuery().getFrom().getId())
                 .userName(update.getCallbackQuery().getFrom().getUserName())
@@ -36,19 +37,18 @@ public class JoinNewGameService {
                 .lastName(update.getCallbackQuery().getFrom().getLastName())
                 .build();
 
-        System.out.println("Registered user's username is:" + update.getCallbackQuery().getMessage().getFrom().getUserName());
-
+        //Adding user to Game Session of the Group and saving it to DB
         groupChat.getGameSession().getUserList().add(user);
         groupChatRepository.save(groupChat);
         return editUsersList(groupChat);
     }
 
-    //Editing list of users that connected to game
+    //Editing message that shows list of users that connected to game
     private EditMessageText editUsersList(GroupChat groupChat) {
         long chatId = groupChat.getChatId();
         int usersListMessageId = groupChat.getUsersListMessageId();
         EditMessageText text = new EditMessageText().setChatId(chatId).setMessageId(usersListMessageId).setText(usersList(groupChat));
-
+        // Adding inline markup for join to game button
         InlineKeyboardMarkup inlineMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         List<InlineKeyboardButton> rowInLine = new ArrayList<>();
@@ -60,11 +60,11 @@ public class JoinNewGameService {
         return text;
     }
 
+    //Generating User list for, status of joined players
     private String usersList(GroupChat groupChat) {
         StringBuilder stringBuilder = new StringBuilder();
 
         for(User user : groupChat.getGameSession().getUserList()) {
-            System.out.println("\n" + user.getUserName());
             stringBuilder.append("\n").append(user.getUserName());
         }
 

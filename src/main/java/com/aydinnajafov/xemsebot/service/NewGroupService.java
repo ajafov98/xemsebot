@@ -15,24 +15,18 @@ public class NewGroupService {
     @Autowired
     private GroupChatRepository groupChatRepository;
 
-
+    //Registering group chat
     public SendMessage groupRegisterConfirmation(Update update) {
-        SendMessage sendMessage = new SendMessage();
         long chatId = update.getMessage().getChatId();
         String chatName = update.getMessage().getChat().getTitle();
-        if(groupChatRepository.existsById(chatId)) {
-            String welcomeMessage = "Hi!!!" + "\n" +
-                    "Good to see you again in " + chatName +" !!!" + "\n" +
-                    "Type command \"/startgame\" to start game";
-            return sendMessage.setChatId(chatId).setText(welcomeMessage);
-        } else {
-            groupChatRepository.save(new GroupChat(chatId, chatName));
-            String welcomeMessage = "Hello everybody!!!!" + "\n" +
-                    "I'm bot for playing \"Xəmsə\"!!!" + "\n" +
-                    "Type command \"/startgame\" to start new game!!!";
-            return sendMessage.setChatId(chatId).setText(welcomeMessage);
-        }
-    }
 
+        if (!groupChatRepository.existsById(chatId)) { //If the group is exists in DB send greeting
+            groupChatRepository.save(new GroupChat(chatId, chatName));
+        }
+
+        return new SendMessage().setChatId(update.getMessage().getChatId())
+                .setText("Hello! Good to see you in " + chatName + "\n"
+                        + "Type \"/startgame@xemse_test_bot\" to start new game!");
+    }
 
 }
