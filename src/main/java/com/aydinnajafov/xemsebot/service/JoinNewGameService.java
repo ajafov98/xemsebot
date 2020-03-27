@@ -38,7 +38,7 @@ public class JoinNewGameService {
                 .build();
 
         //Adding user to Game Session of the Group and saving it to DB
-        groupChat.getGameSession().getUserList().add(user);
+        groupChat.getGameSession().getUserMap().put(user.getUserId(), user);
         groupChatRepository.save(groupChat);
         return editUsersList(groupChat);
     }
@@ -64,15 +64,10 @@ public class JoinNewGameService {
     private String usersList(GroupChat groupChat) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for(User user : groupChat.getGameSession().getUserList()) {
-            stringBuilder.append("\n").append(user.getUserName());
-        }
+        groupChat.getGameSession().getUserMap()
+                .forEach((userId, user) -> stringBuilder.append(user.getUserName()).append("\n"));
 
         return stringBuilder.toString();
     }
-
-
-
-
-
 }
+

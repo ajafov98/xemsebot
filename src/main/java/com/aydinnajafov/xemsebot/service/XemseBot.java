@@ -18,13 +18,13 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
 @Component
 public class XemseBot extends TelegramLongPollingBot {
 
     @Autowired
     GroupChatRepository groupChatRepository;
-
+    @Autowired
+    MessageExecutingHandlingService executeHandler;
     @Autowired
     NewGroupService newGroupService;
     @Autowired
@@ -44,24 +44,31 @@ public class XemseBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if(update.hasMessage()) {
-            updateHandlingService.checkAddedBot(update);
-        }
+        GroupChat groupChat;
 
         if(update.hasMessage() && update.getMessage().hasText()) { //Handle Updates with text messages
+            groupChat =  selectGroup(update);
 
-
-            // Get GroupChat that update comes from
-            GroupChat groupChat = groupChatRepository.findById(update.getMessage().getChatId()).get();
 
             //Check if registration active
-            if(groupChat.isGameRegistrationCommencing() && !update.getMessage().getText().equals("/proceedgame@xemse_test_bot")) { //Calling handler if game already started
+            if(groupChat.isGameRegistrationCommencing() && !checkCommand(update.getMessage().getText(), "/proceedgame")) { //Calling handler if game already started
+
                 updateHandlingService.checkRegistrationHandler(groupChat, update);
+            }
+
+            //Check if group is on game
+            else if(groupChat.isOnGame()) {
+                if(updateHandlingService.checkOnGameHandler(groupChat, update)) {
+                    executeHandler.messageExecute(new SendMessage()
+                            .setChatId(groupChat.getChatId())
+                            .setText("Further actions will be developed")
+                    );
+                }
             }
 
             //Check start game command.
             else if(update.getMessage().getChatId() < 0 && update.getMessage().getText().contains(START_GAME_COMMAND)) {
-               updateHandlingService.checkStartGameHandler(groupChat, update);
+                updateHandlingService.checkStartGameHandler(groupChat, update);
             }
 
             //Pinging service
@@ -70,14 +77,14 @@ public class XemseBot extends TelegramLongPollingBot {
             }
 
             //End the registration and proceed to game
-             else if(checkCommand(update.getMessage().getText(), "/proceedgame@xemse_test_bot")) {
+            else if(checkCommand(update.getMessage().getText(), "/proceedgame")) {
                 updateHandlingService.proceedGameHandler(groupChat);
             }
 
         } else if(update.hasCallbackQuery()) { //Handle CallbackQueries
 
             // Get GroupChat that update comes from
-            GroupChat groupChat = groupChatRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get();
+            groupChat = groupChatRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get();
 
             //Handle join to game button
             if(update.getCallbackQuery().getData().equals("join_to_game")) {
@@ -98,6 +105,17 @@ public class XemseBot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         return botToken;
+    }
+
+    private GroupChat selectGroup(Update update) {
+        if(!update.getMessage().getNewChatMembers().isEmpty()) {
+            updateHandlingService.checkAddedBot(update);
+            return groupChatRepository.save(new GroupChat(update));
+        } else if(groupChatRepository.findById(update.getMessage().getChatId()).isPresent()) {
+            return groupChatRepository.findById(update.getMessage().getChatId()).get();
+        } else {
+            return groupChatRepository.save(new GroupChat(update));
+        }
     }
 
 

@@ -26,37 +26,32 @@ public class CallbackQueryHandlingService {
 
     //Handle join to game button
     public void joinToGameHandler(GroupChat groupChat, Update update) {
-            if(checkRepeatedUser(groupChat, update)) { //Check if user is already registered
-                //Adding user to registered users message that holds join to game button
-                executeHandler.messageExecute(joinNewGameService.join(update, groupChat));
-                //Answer for join to game button
-                executeHandler.answerCallbackQueryExecute(new AnswerCallbackQuery()
-                        .setCallbackQueryId(update.getCallbackQuery().getId())
-                        .setText("SUCCESS"));
+        if(checkRepeatedUser(groupChat, update)) { //Check if user is already registered
+            //Adding user to registered users message that holds join to game button
+            executeHandler.messageExecute(joinNewGameService.join(update, groupChat));
+            //Answer for join to game button
+            executeHandler.answerCallbackQueryExecute(new AnswerCallbackQuery()
+                    .setCallbackQueryId(update.getCallbackQuery().getId())
+                    .setText("SUCCESS"));
 
-            } else {
+        } else {
 
-                //Warn user that he is already registered
-                executeHandler.answerCallbackQueryExecute(new AnswerCallbackQuery()
-                        .setCallbackQueryId(update.getCallbackQuery().getId())
-                        .setText("You're already registered"));
-            }
+            //Warn user that he is already registered
+            executeHandler.answerCallbackQueryExecute(new AnswerCallbackQuery()
+                    .setCallbackQueryId(update.getCallbackQuery().getId())
+                    .setText("You're already registered"));
+        }
     }
 
 
     private boolean checkRepeatedUser(GroupChat groupChat, Update update) {
         //Get user name of the user
-        String username = update.getCallbackQuery().getFrom().getUserName();
+        long userId = update.getCallbackQuery().getFrom().getId().longValue();
 
-        if(groupChat.getGameSession().getUserList().isEmpty()) { //Check if list is empty
+        if(groupChat.getGameSession().getUserMap().isEmpty()) { //Check if list is empty
             return true;
         }
 
-        for(User u : groupChat.getGameSession().getUserList()) { // Check if user exists in users list
-            if(u.getUserName().equals(username)) {
-                return false;
-            }
-        }
-        return true;
+        return !groupChat.getGameSession().getUserMap().containsKey(userId);
     }
 }

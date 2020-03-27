@@ -80,7 +80,7 @@ public class MessageExecutingHandlingService {
     }
 
     //Check rights of bot
-     boolean checkRights(Update update) {
+    boolean checkRights(Update update) {
         GetChatMember getChatMember = new GetChatMember().setChatId(update.getMessage().getChatId()).setUserId(botUserId);
         ChatMember chatMember;
         try {

@@ -19,16 +19,14 @@ public class UpdateHandlingService {
     @Autowired
     private MessageExecutingHandlingService executeHandler;
     @Autowired
-    private StartNewGameService newGameService;
+    private StartGameRegistrationService newGameService;
     @Autowired
     private NewGroupService newGroupService;
 
     //Check if group exists in DB. If not, add to DB
     public void checkAddedBot(Update update) {
-        if(!update.getMessage().getNewChatMembers().isEmpty()) {
-            if(update.getMessage().getNewChatMembers().listIterator().next().getBot()) {
-                executeHandler.messageExecute(newGroupService.groupRegisterConfirmation(update));
-            }
+        if(update.getMessage().getNewChatMembers().listIterator().next().getBot()) {
+            executeHandler.messageExecute(newGroupService.groupRegisterConfirmation(update));
         }
     }
 
@@ -64,6 +62,7 @@ public class UpdateHandlingService {
         groupChat.setGameRegistrationCommencing(false);
         //TODO: Add isOnGame setting to true. Set while game rules
         executeHandler.deleteMessage(new DeleteMessage().setChatId(groupChat.getChatId()).setMessageId(groupChat.getUsersListMessageId()));
+        groupChat.setOnGame(true);
         //Setting state of group
         groupChatRepository.save(groupChat);
     }
@@ -74,6 +73,24 @@ public class UpdateHandlingService {
                 .setChatId(groupChat.getChatId())
                 .setText("Pong"));
     }
+
+    public boolean checkOnGameHandler(GroupChat groupChat, Update update) {
+        if(groupChat.getGameSession().getUserMap().containsKey(update.getMessage().getFrom().getId().longValue())) {
+            return true;
+        } else {
+            System.out.println("Message from: " + update.getMessage().getFrom().getUserName() + " Id is: " + update.getMessage().getFrom().getId());
+            executeHandler.messageExecute(new SendMessage()
+                    .setChatId(update.getMessage().getFrom().getId().longValue())
+                    .setText("Group is on game, please wait until it ends"));
+
+            executeHandler.deleteMessage(new DeleteMessage()
+                    .setChatId(groupChat.getChatId())
+                    .setMessageId(update.getMessage().getMessageId()));
+
+            return false;
+        }
+    }
+
 
 
 

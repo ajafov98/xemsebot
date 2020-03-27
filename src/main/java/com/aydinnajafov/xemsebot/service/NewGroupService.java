@@ -19,12 +19,7 @@ public class NewGroupService {
     public SendMessage groupRegisterConfirmation(Update update) {
         long chatId = update.getMessage().getChatId();
         String chatName = update.getMessage().getChat().getTitle();
-
-        if (!groupChatRepository.existsById(chatId)) { //If the group is exists in DB send greeting
-            groupChatRepository.save(new GroupChat(chatId, chatName));
-        }
-
-        return new SendMessage().setChatId(update.getMessage().getChatId())
+        return new SendMessage().setChatId(chatId)
                 .setText("Hello! Good to see you in " + chatName + "\n"
                         + "Type \"/startgame@xemse_test_bot\" to start new game!");
     }
