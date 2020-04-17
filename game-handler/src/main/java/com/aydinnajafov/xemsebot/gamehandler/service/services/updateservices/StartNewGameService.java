@@ -25,7 +25,10 @@ public class StartNewGameService {
         InlineKeyboardMarkup inlineMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         List<InlineKeyboardButton> rowInLine = new ArrayList<>();
-        rowInLine.add(new InlineKeyboardButton().setText("Join to new game").setCallbackData("join_to_game"));
+        rowInLine.add(new InlineKeyboardButton()
+               // .setText("Join to new game")
+                .setCallbackData("join_to_game")
+                .setUrl("https//t.me/xemse_test_bot?start=" + groupChat.getChatId()));
         rowsInLine.add(rowInLine);
         inlineMarkup.setKeyboard(rowsInLine);
         //Constructing new message with list of joined users

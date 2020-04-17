@@ -31,17 +31,14 @@ public class SendQuestionService {
     }
 
     private SendMessage questionBuilder(GroupChat groupChat) {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+
         GameSession gameSession = groupChat.getGameSession();
         Topic topic = gameSession.getGamePackage().getTopicList().get(gameSession.getTopicId());
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow row = new KeyboardRow();
-        row.add("\uD83D\uDEA8");
-        keyboard.add(row);
-        keyboardMarkup.setKeyboard(keyboard);
+
+
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(groupChat.getChatId());
-        sendMessage.setReplyMarkup(keyboardMarkup);
+        sendMessage.setReplyMarkup(answerButton());
         String question = (gameSession.getQuestionId() + 1) + ". " +
                 topic.getQuestionList().get(gameSession.getQuestionId()).getQuestion();
         sendMessage.setText(question);
@@ -49,5 +46,18 @@ public class SendQuestionService {
         groupChat.setQuestionSent(true);
         groupChatRepository.save(groupChat);
         return sendMessage;
+    }
+
+
+
+
+    private ReplyKeyboardMarkup answerButton() {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow row = new KeyboardRow();
+        row.add("\uD83D\uDEA8");
+        keyboard.add(row);
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
     }
 }

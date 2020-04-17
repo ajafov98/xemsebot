@@ -21,6 +21,8 @@ public class GameSession {
     private int topicId;
     private int questionId;
     private int lastScore;
+    private int lastAnswerQueue;
+    private int answerQueue;
 
     public GameSession (long sessionId) {
         this.sessionId = sessionId;

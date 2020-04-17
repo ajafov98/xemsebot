@@ -27,14 +27,7 @@ public class JoinNewGameService {
     @Transactional
     public EditMessageText join(Update update, GroupChat groupChat) {
         //Get user information from the update
-        User user = User.builder()
-                .userId(update.getCallbackQuery().getFrom().getId())
-                .score(0)
-                .userName(update.getCallbackQuery().getFrom().getUserName())
-                .chatId(update.getCallbackQuery().getMessage().getChatId())
-                .firstName(update.getCallbackQuery().getFrom().getFirstName())
-                .lastName(update.getCallbackQuery().getFrom().getLastName())
-                .build();
+        User user = User.builder().chatId(update.getCallbackQuery().getMessage().getChatId()).build();
 
         //Adding user to Game Session of the Group and saving it to DB
         groupChat.getGameSession().getUserMap().put(user.getUserId(), user);
@@ -51,7 +44,10 @@ public class JoinNewGameService {
         InlineKeyboardMarkup inlineMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         List<InlineKeyboardButton> rowInLine = new ArrayList<>();
-        rowInLine.add(new InlineKeyboardButton().setText("Join to new game").setCallbackData("join_to_game"));
+        rowInLine.add(new InlineKeyboardButton()
+                // .setText("Join to new game")
+                .setCallbackData("join_to_game")
+                .setUrl("https//t.me/xemse_test_bot?start=" + groupChat.getChatId()).setCallbackData("join_to_game"));
         rowsInLine.add(rowInLine);
         inlineMarkup.setKeyboard(rowsInLine);
         text.setReplyMarkup(inlineMarkup);

@@ -3,7 +3,6 @@ package com.aydinnajafov.xemsebot.gamehandler.service;
 import com.aydinnajafov.xemsebot.gamehandler.model.GameSession;
 import com.aydinnajafov.xemsebot.gamehandler.model.GroupChat;
 import com.aydinnajafov.xemsebot.gamehandler.repositories.GroupChatRepository;
-
 import com.aydinnajafov.xemsebot.gamehandler.service.handlers.CallbackQueryHandlingService;
 import com.aydinnajafov.xemsebot.gamehandler.service.handlers.MessageExecutingHandlingService;
 import com.aydinnajafov.xemsebot.gamehandler.service.handlers.UpdateHandlingService;
@@ -16,7 +15,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.games.Game;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 
 @Component
@@ -46,6 +44,14 @@ public class XemseBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         GroupChat groupChat;
+
+       /* if(update.hasMessage() && update.getMessage().hasText() && !update.getMessage().getChat().isGroupChat()) {
+            if(update.getMessage().getText().contains("/start")) {
+                User user = User.builder().chatId(update.getMessage().getChatId()).build();
+                long groupId = Long.parseLong(update.getMessage().getText().split(" ")[1]);
+
+            }
+        }*/
 
         if(update.hasMessage() && update.getMessage().hasText()) { //Handle Updates with text messages
             groupChat =  selectGroup(update);
@@ -101,13 +107,15 @@ public class XemseBot extends TelegramLongPollingBot {
 
         } else if(update.hasCallbackQuery()) { //Handle CallbackQueries
 
-            // Get GroupChat that update comes from
+            System.out.println("Reached as callback query");
+            System.out.println(update.getMessage().getText());
+            /*// Get GroupChat that update comes from
             groupChat = groupChatRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get();
 
             //Handle join to game button
             if(update.getCallbackQuery().getData().equals("join_to_game")) {
                 callbackHandlingService.joinToGameHandler(groupChat, update);
-            }
+            }*/
         }
     }
 
